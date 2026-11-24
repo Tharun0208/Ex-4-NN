@@ -1,8 +1,8 @@
 
-<H3>ENTER YOUR NAME</H3>
-<H3>ENTER YOUR REGISTER NO.</H3>
+<H3>NAME: THARUN R</H3>
+<H3>REGISTER NO: 212224240172</H3>
 <H3>EX. NO.4</H3>
-<H3>DATE:</H3>
+<H3>DATE: 24/11/2026</H3>
 <H1 ALIGN =CENTER>Implementation of MLP with Backpropagation for Multiclassification</H1>
 <H3>Aim:</H3>
 To implement a Multilayer Perceptron for Multi classification
@@ -116,11 +116,163 @@ Normalize our dataset.
 
 <H3>Program:</H3> 
 
-Insert your code here
+```py
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Load the Dry Bean dataset
+df_dry_bean = pd.read_excel(
+    'Dry_Bean_Dataset/Dry_Bean_Dataset.xlsx'
+)
+
+# Define X and y
+X = df_dry_bean.drop('Class', axis=1)
+y = df_dry_bean[['Class']]
+
+# Encode the target variable
+le = preprocessing.LabelEncoder()
+y = y.apply(le.fit_transform)
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42
+)
+
+# Scale numerical features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Initialize the MLPClassifier
+model = MLPClassifier(
+    hidden_layer_sizes=(50, 50, 10),
+    max_iter=1000,
+    random_state=42,
+    activation='logistic',
+    solver='sgd',
+    learning_rate_init=0.01,
+    momentum=0.9
+)
+
+# Train the MLPClassifier
+model.fit(X_train, y_train.values.ravel())
+
+# Make predictions on the test data
+y_pred = model.predict(X_test)
+
+# Print accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.4f}")
+
+# --------------------------------------------------
+# Confusion Matrix
+# --------------------------------------------------
+
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    cbar=False,
+    xticklabels=le.classes_,
+    yticklabels=le.classes_
+)
+
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.tight_layout()
+plt.show()
+
+# --------------------------------------------------
+# Classification Report
+# --------------------------------------------------
+
+report = classification_report(
+    y_test,
+    y_pred,
+    output_dict=True
+)
+
+df_report = pd.DataFrame(report).transpose()
+
+# Exclude accuracy, macro avg and weighted avg
+df_plot = df_report.iloc[:-3, :].copy()
+
+# Drop support column for heatmap
+if 'support' in df_plot.columns:
+    df_plot = df_plot.drop(columns=['support'])
+
+plt.figure(figsize=(10, 7))
+sns.heatmap(
+    df_plot.astype(float),
+    annot=True,
+    cmap='Blues',
+    fmt=".2f",
+    linewidths=.5
+)
+
+plt.title('Classification Report Heatmap')
+plt.ylabel('Classes')
+plt.xlabel('Metrics')
+plt.tight_layout()
+plt.show()
+
+# --------------------------------------------------
+# Training Loss Curve
+# --------------------------------------------------
+
+plt.figure(figsize=(10, 6))
+plt.plot(model.loss_curve_)
+
+plt.title('MLPClassifier Training Loss Over Iterations')
+plt.xlabel('Iterations')
+plt.ylabel('Loss')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
 
 <H3>Output:</H3>
 
-Show your results here
+The following outputs are obtained after executing the program:
+
+### 1. Classification Accuracy
+
+> <img width="433" height="39" alt="{9ABE98F2-55F0-4954-B5E3-498A03A7CA83}" src="https://github.com/user-attachments/assets/8aeafdc2-3eaf-46a4-a522-800f32967a46" />
+
+
+### 2. Confusion Matrix
+
+The confusion matrix displays the number of correctly and incorrectly classified samples for each Dry Bean class.
+
+> <img width="838" height="701" alt="image" src="https://github.com/user-attachments/assets/dd6c1b65-a7d0-4fce-bc95-723eeb2c8866" />
+
+
+### 3. Classification Report Heatmap
+
+The classification report presents the **precision, recall, and F1-score** for each class.
+
+> <img width="789" height="624" alt="image" src="https://github.com/user-attachments/assets/dbc6111e-ca10-4939-9c33-18f7ed09a27c" />
+
+
+### 4. Training Loss Curve
+
+The loss curve shows how the training loss changes over successive iterations of the MLP.
+
+> <img width="855" height="547" alt="image" src="https://github.com/user-attachments/assets/0ea043ab-9e7b-4e5c-9856-60d006842ac1" />
 
 <H3>Result:</H3>
 Thus, MLP is implemented for multi-classification using python.
